@@ -1,0 +1,47 @@
+version: "3"
+
+services:
+  nginx:
+    image: nginx:alpine
+    container_name: ng01
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./app:/app
+      - ./config/nginx:/etc/nginx/conf.d
+      - /static:/static
+    depends_on: 
+      - app
+    
+  app:
+    build:
+      context: .
+    volumes:
+      - ./app:/app
+      - /static:/static
+    expose: 
+      - "8000"
+    command: >
+      sh -c "python manage.py wait_for_db &&
+             python manage.py collectstatic --no-input &&
+              python manage.py migrate &&
+              gunicorn app.wsgi:application -b 0.0.0.0:8000"
+    environment:
+      - DB_HOST=db
+      - DB_NAME=app
+      - DB_USER=postgres
+      - DB_PASS=secretpassword
+    depends_on:
+      - db
+    
+
+
+  db:
+    image: postgres:10-alpine
+    environment:
+      - POSTGRES_DB=app
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=secretpassword
+    
+    
+
