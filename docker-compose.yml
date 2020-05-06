@@ -10,6 +10,7 @@ services:
       - ./app:/app
       - ./config/nginx:/etc/nginx/conf.d
       - /static:/static
+      - /media:/media
     depends_on: 
       - app
     
@@ -19,6 +20,7 @@ services:
     volumes:
       - ./app:/app
       - /static:/static
+      - /media:/media
     expose: 
       - "8000"
     command: >
